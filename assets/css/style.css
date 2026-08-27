@@ -386,7 +386,7 @@ p:last-child{margin-bottom:0}
 }
 .specs svg{width:14px;height:14px;flex:none;opacity:.65}
 .price{font-family:var(--display);font-weight:700;font-size:1.02rem;letter-spacing:-.02em;white-space:nowrap;flex:none}
-.price small{display:block;font-family:var(--body);font-weight:500;font-size:.66rem;letter-spacing:.1em;text-transform:uppercase;color:var(--slate);margin-top:.1rem}
+.price small{display:block;font-family:var(--body);font-weight:500;font-size:.66rem;letter-spacing:.1em;text-transform:uppercase;color:var(--slate);margin:.1rem 0}
 
 /* home rooms: one wide + one normal per row, alternating sides */
 .rooms--home{display:flex;flex-direction:column;gap:clamp(1.1rem,2.4vw,1.85rem)}
