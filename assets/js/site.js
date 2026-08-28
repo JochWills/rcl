@@ -109,6 +109,22 @@
       if (e.key === 'ArrowLeft') show(current - 1);
       if (e.key === 'ArrowRight') show(current + 1);
     });
+
+    /* swipe left/right to move between photos on touch devices */
+    var touchStartX = 0, touchStartY = 0;
+    lightbox.addEventListener('touchstart', function (e) {
+      var t = e.changedTouches[0];
+      touchStartX = t.clientX;
+      touchStartY = t.clientY;
+    }, { passive: true });
+    lightbox.addEventListener('touchend', function (e) {
+      var t = e.changedTouches[0];
+      var dx = t.clientX - touchStartX;
+      var dy = t.clientY - touchStartY;
+      if (Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy) * 1.5) {
+        show(current + (dx < 0 ? 1 : -1));
+      }
+    }, { passive: true });
   }
 
   /* ---------- current year ---------- */
