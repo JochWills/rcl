@@ -65,6 +65,69 @@
     }
   }
 
+  /* ---------- FAQ accordion (animated open/close) ---------- */
+  var faqDetails = document.querySelectorAll('.faq details');
+  if (faqDetails.length && !reduceMotion && 'animate' in Element.prototype) {
+    faqDetails.forEach(function (det) {
+      var summary = det.querySelector('summary');
+      var answer = det.querySelector('.faq__a');
+      if (!summary || !answer) return;
+
+      var animation = null;
+      var isClosing = false;
+      var isExpanding = false;
+
+      summary.addEventListener('click', function (e) {
+        e.preventDefault();
+        det.style.overflow = 'hidden';
+        if (isClosing || !det.open) {
+          openFaq();
+        } else if (isExpanding || det.open) {
+          closeFaq();
+        }
+      });
+
+      function openFaq() {
+        det.style.height = det.offsetHeight + 'px';
+        det.open = true;
+        window.requestAnimationFrame(function () { expand(); });
+      }
+
+      function expand() {
+        isExpanding = true;
+        var startHeight = det.offsetHeight;
+        var endHeight = summary.offsetHeight + answer.offsetHeight;
+        runAnimation(startHeight, endHeight, true);
+      }
+
+      function closeFaq() {
+        isClosing = true;
+        var startHeight = det.offsetHeight;
+        var endHeight = summary.offsetHeight;
+        runAnimation(startHeight, endHeight, false);
+      }
+
+      function runAnimation(startHeight, endHeight, opening) {
+        if (animation) animation.cancel();
+        animation = det.animate(
+          { height: [startHeight + 'px', endHeight + 'px'] },
+          { duration: 380, easing: 'cubic-bezier(.22,.7,.3,1)' }
+        );
+        animation.onfinish = function () { onAnimationFinish(opening); };
+        animation.oncancel = function () { isClosing = false; isExpanding = false; };
+      }
+
+      function onAnimationFinish(open) {
+        det.open = open;
+        animation = null;
+        isClosing = false;
+        isExpanding = false;
+        det.style.height = '';
+        det.style.overflow = '';
+      }
+    });
+  }
+
   /* ---------- gallery lightbox ---------- */
   var gallery = document.querySelector('.gallery');
   var lightbox = document.querySelector('.lightbox');

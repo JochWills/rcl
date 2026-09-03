@@ -612,7 +612,7 @@ p:last-child{margin-bottom:0}
   content:"";position:absolute;right:.35rem;top:1.5rem;
   width:12px;height:12px;
   border-right:2px solid var(--sun);border-bottom:2px solid var(--sun);
-  transform:rotate(45deg);transition:transform .25s var(--ease);
+  transform:rotate(45deg);transition:transform .38s var(--ease);
 }
 .faq details[open] summary::after{transform:rotate(-135deg);top:1.75rem}
 .faq .faq__a{padding:0 0 1.4rem;color:var(--slate);font-size:.96rem;max-width:70ch}
