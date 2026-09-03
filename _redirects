@@ -1,0 +1,24 @@
+# Old .html URLs permanently redirect to the clean path
+/index.html               /                          301
+/rooms.html                /rooms                     301
+/contact.html               /contact                   301
+/faq.html                   /faq                        301
+/experience.html            /experience                 301
+/rooms/golden-sky.html      /rooms/golden-sky           301
+/rooms/city-escape.html     /rooms/city-escape          301
+/rooms/urban-living.html    /rooms/urban-living         301
+/rooms/freedom.html         /rooms/freedom              301
+/rooms/the-relaxed.html     /rooms/the-relaxed          301
+/rooms/copper-dreams.html   /rooms/copper-dreams        301
+
+# Clean paths serve the matching .html file (URL stays clean in the address bar)
+/rooms                     /rooms.html                 200
+/contact                    /contact.html               200
+/faq                        /faq.html                    200
+/experience                 /experience.html             200
+/rooms/golden-sky           /rooms/golden-sky.html       200
+/rooms/city-escape          /rooms/city-escape.html      200
+/rooms/urban-living         /rooms/urban-living.html     200
+/rooms/freedom              /rooms/freedom.html          200
+/rooms/the-relaxed          /rooms/the-relaxed.html      200
+/rooms/copper-dreams        /rooms/copper-dreams.html    200
