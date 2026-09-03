@@ -502,7 +502,7 @@ p:last-child{margin-bottom:0}
 .bookbox hr{border:0;border-top:1px solid var(--line-soft);margin:1.25rem 0}
 .bookbox dl{margin:0;display:grid;gap:.6rem}
 .bookbox .row{display:flex;justify-content:space-between;gap:1rem;font-size:.88rem}
-.bookbox .row dt{color:var(--slate)}
+.bookbox .row dt{color:var(--slate);flex:none;white-space:nowrap}
 .bookbox .row dd{margin:0;font-weight:600;text-align:right}
 .bookbox .btn{margin-top:1.35rem}
 .bookbox__fine{margin-top:.9rem;font-size:.76rem;color:var(--slate);text-align:center;line-height:1.5}
