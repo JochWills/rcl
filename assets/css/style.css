@@ -596,6 +596,15 @@ p:last-child{margin-bottom:0}
 .rating__meta{font-size:.88rem;color:var(--slate)}
 .section--dark .rating__meta{color:rgba(255,255,255,.72)}
 
+.ratingrow{display:flex;flex-wrap:wrap;justify-content:center;gap:1.75rem 3rem}
+.ratingrow .rating{gap:.9rem;padding-right:3rem;border-right:1px solid var(--line-soft)}
+.ratingrow .rating:last-child{border-right:0;padding-right:0}
+.ratingrow .rating__score{font-size:2.1rem}
+.rating__score .denom{font-weight:600;font-size:.42em;color:var(--slate);letter-spacing:0;margin-left:.05em}
+.section--dark .rating__score .denom{color:rgba(255,255,255,.6)}
+.ratingrow .rating__stars{font-size:.92rem}
+.ratingrow .rating__meta{font-size:.82rem}
+
 /* =========================================================
    Map + contact
    ========================================================= */
