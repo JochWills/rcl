@@ -21,18 +21,38 @@
   /* ---------- mobile nav ---------- */
   var burger = document.querySelector('.burger');
   var nav = document.querySelector('.nav');
+  var navCaret = document.querySelector('.nav__caret');
+  var navItem = navCaret && navCaret.closest('.nav__item');
+
+  function closeRoomsDropdown() {
+    if (!navItem) return;
+    navItem.classList.remove('is-open');
+    navCaret.setAttribute('aria-expanded', 'false');
+  }
+
   if (burger && nav) {
     burger.addEventListener('click', function () {
       var open = nav.classList.toggle('is-open');
       burger.setAttribute('aria-expanded', open ? 'true' : 'false');
+      if (!open) closeRoomsDropdown();
       if (open) header.classList.add('is-solid'); else syncHeader();
     });
     nav.addEventListener('click', function (e) {
+      if (e.target.closest('.nav__caret')) return;
       if (e.target.tagName === 'A') {
         nav.classList.remove('is-open');
         burger.setAttribute('aria-expanded', 'false');
+        closeRoomsDropdown();
         syncHeader();
       }
+    });
+  }
+
+  if (navCaret && navItem) {
+    navCaret.addEventListener('click', function (e) {
+      e.preventDefault();
+      var open = navItem.classList.toggle('is-open');
+      navCaret.setAttribute('aria-expanded', open ? 'true' : 'false');
     });
   }
 
