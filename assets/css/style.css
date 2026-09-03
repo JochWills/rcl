@@ -430,12 +430,12 @@ p:last-child{margin-bottom:0}
    ========================================================= */
 .flist{list-style:none;padding:0;margin:1.75rem 0 0;display:grid;gap:.1rem}
 .flist li{
-  position:relative;
-  padding:.8rem 0 .8rem 1.35rem;border-bottom:1px solid var(--line-soft);
+  display:flex;align-items:flex-start;gap:.75rem;
+  padding:.8rem 0;border-bottom:1px solid var(--line-soft);
   font-size:.96rem;line-height:1.55;
 }
 .flist li:last-child{border-bottom:0}
-.flist li::before{content:"";position:absolute;left:0;top:.95rem;width:7px;height:7px;border-radius:50%;background:var(--sun)}
+.flist li::before{content:"";flex:none;width:7px;height:7px;margin-top:calc((1.55em - 7px) / 2);border-radius:50%;background:var(--sun)}
 .section--dark .flist li{border-bottom-color:rgba(255,255,255,.14)}
 
 /* =========================================================
