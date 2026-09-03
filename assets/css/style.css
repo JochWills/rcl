@@ -272,11 +272,11 @@ p:last-child{margin-bottom:0}
     flex:0 0 100%;
     position:static;opacity:1;visibility:visible;transform:none;
     background:transparent;border:0;box-shadow:none;border-radius:0;
-    margin:0;gap:0;
+    margin:0;gap:0;padding:0;
     max-height:0;overflow:hidden;
     transition:max-height .3s var(--ease);
   }
-  .nav__item.is-open .nav__dropdown{max-height:20rem;padding-bottom:.4rem}
+  .nav__item.is-open .nav__dropdown{max-height:20rem;padding:0 0 .4rem}
   .header .nav__dropdown a{
     font-size:.98rem;opacity:.75;
     padding:.65rem .25rem .65rem 1rem;border-bottom:1px solid var(--line-soft);
