@@ -166,35 +166,57 @@
       slide.src = btn.dataset.full;
       slide.alt = btn.querySelector('img').alt;
     }
+    function markAria() {
+      slides[0].setAttribute('aria-hidden', 'true');
+      slides[2].setAttribute('aria-hidden', 'true');
+      slides[1].removeAttribute('aria-hidden');
+    }
     function renderSlides() {
       fill(slides[0], current - 1);
       fill(slides[1], current);
       fill(slides[2], current + 1);
+      markAria();
       if (lbCount) lbCount.textContent = (current + 1) + ' / ' + buttons.length;
     }
     function resetTrack() {
       track.classList.remove('is-animating');
       track.style.transform = 'translateX(-33.3333%)';
     }
-    function show(index) {
-      current = (index + buttons.length) % buttons.length;
-      resetTrack();
-      renderSlides();
+    /* the slide that was already showing (preloaded) stays put — only the
+       freshly-revealed edge slide (now off-screen again) gets a new image,
+       so fast repeated swipes never flash a stale/reloading photo */
+    function settle(dir) {
+      current = (current + dir + buttons.length) % buttons.length;
+      track.classList.remove('is-animating');
+      if (dir > 0) {
+        var head = slides.shift();
+        slides.push(head);
+        track.appendChild(head);
+        track.style.transform = 'translateX(-33.3333%)';
+        fill(head, current + 1);
+      } else {
+        var tail = slides.pop();
+        slides.unshift(tail);
+        track.insertBefore(tail, track.firstChild);
+        track.style.transform = 'translateX(-33.3333%)';
+        fill(tail, current - 1);
+      }
+      markAria();
+      if (lbCount) lbCount.textContent = (current + 1) + ' / ' + buttons.length;
     }
-    /* animate the track to the prev/next slide, then recentre and refresh */
+    /* animate the track to the prev/next slide, then settle on it */
     function go(dir) {
       if (animating || !dir) return;
+      if (reduceMotion) { settle(dir); return; }
       animating = true;
       track.classList.add('is-animating');
       track.style.transform = 'translateX(' + (dir < 0 ? '0%' : '-66.6666%') + ')';
       var done = function () {
         track.removeEventListener('transitionend', done);
-        current = (current + dir + buttons.length) % buttons.length;
-        resetTrack();
-        renderSlides();
+        settle(dir);
         animating = false;
       };
-      if (reduceMotion) { done(); } else { track.addEventListener('transitionend', done); }
+      track.addEventListener('transitionend', done);
     }
     function open(index) {
       lastFocused = document.activeElement;
