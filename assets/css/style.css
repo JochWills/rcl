@@ -619,6 +619,17 @@ p:last-child{margin-bottom:0}
 .ratingrow .rating__stars{font-size:.92rem}
 .ratingrow .rating__meta{font-size:.82rem}
 
+@media (max-width:640px){
+  .ratingrow{flex-direction:column;align-items:stretch;gap:0}
+  .ratingrow .rating{
+    flex-direction:column;text-align:center;
+    border-right:0;padding-right:0;
+    padding-bottom:1.15rem;margin-bottom:1.15rem;
+    border-bottom:1px solid var(--line-soft);
+  }
+  .ratingrow .rating:last-child{padding-bottom:0;margin-bottom:0;border-bottom:0}
+}
+
 /* =========================================================
    Map + contact
    ========================================================= */
