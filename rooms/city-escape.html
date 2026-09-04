@@ -174,7 +174,13 @@
 <div class="lightbox" role="dialog" aria-modal="true" aria-label="City Escape photo viewer">
   <button class="lightbox__close" type="button" aria-label="Close">&times;</button>
   <button class="lightbox__nav lightbox__nav--prev" type="button" aria-label="Previous photo">&#8249;</button>
-  <img src="" alt="">
+  <div class="lightbox__viewport">
+    <div class="lightbox__track">
+      <img class="lightbox__slide" src="" alt="" aria-hidden="true">
+      <img class="lightbox__slide" src="" alt="">
+      <img class="lightbox__slide" src="" alt="" aria-hidden="true">
+    </div>
+  </div>
   <button class="lightbox__nav lightbox__nav--next" type="button" aria-label="Next photo">&#8250;</button>
   <p class="lightbox__count"></p>
 </div>

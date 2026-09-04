@@ -153,21 +153,54 @@
   var lightbox = document.querySelector('.lightbox');
   if (gallery && lightbox) {
     var buttons = Array.prototype.slice.call(gallery.querySelectorAll('button'));
-    var lbImg = lightbox.querySelector('img');
+    var track = lightbox.querySelector('.lightbox__track');
+    var viewport = lightbox.querySelector('.lightbox__viewport');
+    var slides = Array.prototype.slice.call(lightbox.querySelectorAll('.lightbox__slide'));
     var lbCount = lightbox.querySelector('.lightbox__count');
     var current = 0;
     var lastFocused = null;
+    var animating = false;
 
+    function fill(slide, index) {
+      var btn = buttons[(index + buttons.length) % buttons.length];
+      slide.src = btn.dataset.full;
+      slide.alt = btn.querySelector('img').alt;
+    }
+    function renderSlides() {
+      fill(slides[0], current - 1);
+      fill(slides[1], current);
+      fill(slides[2], current + 1);
+      if (lbCount) lbCount.textContent = (current + 1) + ' / ' + buttons.length;
+    }
+    function resetTrack() {
+      track.classList.remove('is-animating');
+      track.style.transform = 'translateX(-33.3333%)';
+    }
     function show(index) {
       current = (index + buttons.length) % buttons.length;
-      var src = buttons[current].dataset.full;
-      lbImg.src = src;
-      lbImg.alt = buttons[current].querySelector('img').alt;
-      if (lbCount) lbCount.textContent = (current + 1) + ' / ' + buttons.length;
+      resetTrack();
+      renderSlides();
+    }
+    /* animate the track to the prev/next slide, then recentre and refresh */
+    function go(dir) {
+      if (animating || !dir) return;
+      animating = true;
+      track.classList.add('is-animating');
+      track.style.transform = 'translateX(' + (dir < 0 ? '0%' : '-66.6666%') + ')';
+      var done = function () {
+        track.removeEventListener('transitionend', done);
+        current = (current + dir + buttons.length) % buttons.length;
+        resetTrack();
+        renderSlides();
+        animating = false;
+      };
+      if (reduceMotion) { done(); } else { track.addEventListener('transitionend', done); }
     }
     function open(index) {
       lastFocused = document.activeElement;
-      show(index);
+      current = index;
+      resetTrack();
+      renderSlides();
       lightbox.classList.add('is-open');
       document.body.style.overflow = 'hidden';
       lightbox.querySelector('.lightbox__close').focus();
@@ -175,7 +208,6 @@
     function close() {
       lightbox.classList.remove('is-open');
       document.body.style.overflow = '';
-      lbImg.src = '';
       if (lastFocused) lastFocused.focus();
     }
 
@@ -183,30 +215,48 @@
       btn.addEventListener('click', function () { open(index); });
     });
     lightbox.querySelector('.lightbox__close').addEventListener('click', close);
-    lightbox.querySelector('.lightbox__nav--prev').addEventListener('click', function () { show(current - 1); });
-    lightbox.querySelector('.lightbox__nav--next').addEventListener('click', function () { show(current + 1); });
+    lightbox.querySelector('.lightbox__nav--prev').addEventListener('click', function () { go(-1); });
+    lightbox.querySelector('.lightbox__nav--next').addEventListener('click', function () { go(1); });
     lightbox.addEventListener('click', function (e) { if (e.target === lightbox) close(); });
     document.addEventListener('keydown', function (e) {
       if (!lightbox.classList.contains('is-open')) return;
       if (e.key === 'Escape') close();
-      if (e.key === 'ArrowLeft') show(current - 1);
-      if (e.key === 'ArrowRight') show(current + 1);
+      if (e.key === 'ArrowLeft') go(-1);
+      if (e.key === 'ArrowRight') go(1);
     });
 
-    /* swipe left/right to move between photos on touch devices */
-    var touchStartX = 0, touchStartY = 0;
+    /* drag/swipe the track with the finger, then settle on the nearest slide */
+    var dragging = false, dragStartX = 0, dragStartY = 0, dragDX = 0, viewportW = 1;
     lightbox.addEventListener('touchstart', function (e) {
+      if (animating) return;
       var t = e.changedTouches[0];
-      touchStartX = t.clientX;
-      touchStartY = t.clientY;
+      dragging = true;
+      dragStartX = t.clientX;
+      dragStartY = t.clientY;
+      dragDX = 0;
+      viewportW = viewport.clientWidth || 1;
+      track.classList.remove('is-animating');
     }, { passive: true });
-    lightbox.addEventListener('touchend', function (e) {
+    lightbox.addEventListener('touchmove', function (e) {
+      if (!dragging) return;
       var t = e.changedTouches[0];
-      var dx = t.clientX - touchStartX;
-      var dy = t.clientY - touchStartY;
-      if (Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy) * 1.5) {
-        show(current + (dx < 0 ? 1 : -1));
+      var dx = t.clientX - dragStartX;
+      var dy = t.clientY - dragStartY;
+      if (Math.abs(dx) < Math.abs(dy)) return; // vertical gesture, ignore
+      dragDX = dx;
+      var pct = (dx / viewportW) * 33.3333;
+      track.style.transform = 'translateX(calc(-33.3333% + ' + pct + '%))';
+    }, { passive: true });
+    lightbox.addEventListener('touchend', function () {
+      if (!dragging) return;
+      dragging = false;
+      var passedThreshold = Math.abs(dragDX) > Math.max(50, viewportW * 0.18);
+      if (!passedThreshold) {
+        if (!reduceMotion) track.classList.add('is-animating');
+        track.style.transform = 'translateX(-33.3333%)';
+        return;
       }
+      go(dragDX < 0 ? 1 : -1);
     }, { passive: true });
   }
 
