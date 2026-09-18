@@ -282,6 +282,32 @@
     }, { passive: true });
   }
 
+  /* ---------- WhatsApp book-direct widget ---------- */
+  /* Set this once the WhatsApp Business profile exists — digits only,
+     country code first, no "+", no spaces (e.g. "27821234567").
+     The widget stays hidden until a number is set. */
+  var WHATSAPP_NUMBER = '27837890894';
+  var WHATSAPP_MESSAGE = "Hi! I'd like to book directly at RElaxed City Living — what's your best rate?";
+
+  if (WHATSAPP_NUMBER && !sessionStorage.getItem('waDismissed')) {
+    var waLink = 'https://wa.me/' + WHATSAPP_NUMBER + '?text=' + encodeURIComponent(WHATSAPP_MESSAGE);
+    var wa = document.createElement('div');
+    wa.className = 'wa-widget';
+    wa.innerHTML =
+      '<button class="wa-widget__close" type="button" aria-label="Dismiss">×</button>' +
+      '<a class="wa-widget__link" href="' + waLink + '" target="_blank" rel="noopener">' +
+        '<span class="wa-widget__icon">' +
+          '<svg viewBox="0 0 32 32" aria-hidden="true"><path d="M16.02 3C9.4 3 4 8.38 4 15.02c0 2.22.6 4.3 1.65 6.1L4 29l8.06-1.6a12.9 12.9 0 0 0 3.96.62h.01c6.62 0 12.02-5.38 12.02-12.02C28.05 8.38 22.65 3 16.02 3zm7.1 17.2c-.3.85-1.5 1.56-2.45 1.77-.65.14-1.5.25-4.36-.93-3.65-1.52-6-5.2-6.18-5.44-.18-.24-1.47-1.96-1.47-3.75 0-1.78.94-2.65 1.27-3.01.33-.36.72-.45.96-.45.24 0 .48 0 .69.01.22.01.52-.08.81.62.3.72 1.03 2.5 1.12 2.68.09.18.15.4.03.64-.12.24-.18.4-.36.6-.18.22-.38.48-.54.65-.18.18-.37.38-.16.74.21.36.93 1.53 2 2.48 1.37 1.22 2.53 1.6 2.9 1.78.36.18.58.15.79-.09.21-.24.9-1.05 1.14-1.41.24-.36.48-.3.8-.18.33.12 2.1.99 2.46 1.17.36.18.6.27.69.42.09.15.09.87-.21 1.72z"/></svg>' +
+        '</span>' +
+        '<span class="wa-widget__text"><strong>Book direct</strong><em>Message us for our best rate</em></span>' +
+      '</a>';
+    document.body.appendChild(wa);
+    wa.querySelector('.wa-widget__close').addEventListener('click', function () {
+      wa.remove();
+      sessionStorage.setItem('waDismissed', '1');
+    });
+  }
+
   /* ---------- current year ---------- */
   var yearEl = document.querySelectorAll('[data-year]');
   yearEl.forEach(function (el) { el.textContent = new Date().getFullYear(); });
