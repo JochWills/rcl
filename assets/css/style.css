@@ -768,10 +768,6 @@ p:last-child{margin-bottom:0}
 
 @media (max-width:640px){
   .wa-widget{
-    left:0;right:0;bottom:0;top:auto;
-    border-radius:0;max-width:none;border-left:0;border-right:0;border-bottom:0;
-    justify-content:center;
-    padding:.75rem 1.1rem calc(.75rem + env(safe-area-inset-bottom));
+    right:.75rem;bottom:calc(.75rem + env(safe-area-inset-bottom));
   }
-  .wa-widget__close{top:.4rem;right:.7rem;background:transparent;color:var(--slate);border:0;font-size:1.35rem}
 }
