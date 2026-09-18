@@ -769,5 +769,6 @@ p:last-child{margin-bottom:0}
 @media (max-width:640px){
   .wa-widget{
     right:.75rem;bottom:calc(.75rem + env(safe-area-inset-bottom));
+    box-shadow:none;
   }
 }
