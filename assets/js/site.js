@@ -12,7 +12,10 @@
     if (!header) return;
     if (!hero) { header.classList.add('is-solid'); return; }
     var trigger = Math.min(hero.offsetHeight - 90, window.innerHeight * 0.6);
-    header.classList.toggle('is-solid', window.scrollY > trigger);
+    /* also go solid as soon as the hero copy reaches the header, so they never overlap */
+    var lead = hero.querySelector('.hero__inner > :first-child');
+    var collides = lead && lead.getBoundingClientRect().top < header.offsetHeight;
+    header.classList.toggle('is-solid', window.scrollY > trigger || collides);
   }
   syncHeader();
   window.addEventListener('scroll', syncHeader, { passive: true });
