@@ -315,12 +315,24 @@
   var quotesEl = document.querySelector('[data-quotes]');
   if (quotesEl) {
     var qTrack = quotesEl.querySelector('.quotes__track');
-    var qCards = qTrack.children;
     var qDots = quotesEl.querySelector('.quotes__dots');
-    var qIndex = 0, qTimer = null, qPaused = false, qHold = false, qMax = -1;
+    var qOriginals = Array.prototype.slice.call(qTrack.children);
+    var qN = qOriginals.length;
+
+    /* a copy of the set on each side lets it slide past the last review straight into
+       the first; once a slide settles on a copy it silently jumps to the real card */
+    qOriginals.forEach(function (card) {
+      var before = card.cloneNode(true), after = card.cloneNode(true);
+      before.setAttribute('aria-hidden', 'true');
+      after.setAttribute('aria-hidden', 'true');
+      qTrack.insertBefore(before, qOriginals[0]);
+      qTrack.appendChild(after);
+    });
+    var qCards = Array.prototype.slice.call(qTrack.children);
+    var qPos = qN, qTimer = null, qPaused = false, qHold = false;
 
     /* long reviews are clamped; "Read more" expands one in place and holds the autoplay */
-    var qMores = Array.prototype.map.call(qCards, function (card) {
+    var qMores = qCards.map(function (card) {
       var btn = document.createElement('button');
       btn.type = 'button';
       btn.className = 'quote__more';
@@ -343,59 +355,62 @@
     });
     function qCollapse() {
       qHold = false;
-      Array.prototype.forEach.call(qCards, function (card, i) {
+      qCards.forEach(function (card, i) {
         card.classList.remove('is-open');
         qMores[i].textContent = 'Read more';
         qMores[i].setAttribute('aria-expanded', 'false');
       });
     }
     function qCheckClamp() {
-      Array.prototype.forEach.call(qCards, function (card, i) {
+      qCards.forEach(function (card, i) {
         if (card.classList.contains('is-open')) return;
         var bq = card.querySelector('blockquote');
         qMores[i].hidden = bq.scrollHeight <= bq.clientHeight + 1;
       });
     }
 
+    for (var qi = 0; qi < qN; qi++) {
+      var dot = document.createElement('button');
+      dot.type = 'button';
+      dot.setAttribute('aria-label', 'Go to review ' + (qi + 1));
+      dot.addEventListener('click', (function (n) { return function () { qGo(qN + n); qStart(); }; })(qi));
+      qDots.appendChild(dot);
+    }
+
     function qPerView() { return parseInt(getComputedStyle(quotesEl).getPropertyValue('--per'), 10) || 1; }
-    function qRender() {
+    function qRender(animate) {
       var step = qCards[0].offsetWidth + parseFloat(getComputedStyle(qTrack).columnGap || 0);
-      qTrack.style.transform = 'translateX(' + (-qIndex * step) + 'px)';
+      qTrack.style.transition = animate && !reduceMotion ? '' : 'none';
+      qTrack.style.transform = 'translateX(' + (-qPos * step) + 'px)';
+      if (!animate || reduceMotion) { void qTrack.offsetWidth; qTrack.style.transition = ''; }
+      var active = ((qPos - qN) % qN + qN) % qN;
       Array.prototype.forEach.call(qDots.children, function (d, i) {
-        if (i === qIndex) d.setAttribute('aria-current', 'true'); else d.removeAttribute('aria-current');
+        if (i === active) d.setAttribute('aria-current', 'true'); else d.removeAttribute('aria-current');
       });
     }
-    /* one dot per resting position, which depends on how many cards fit */
-    function qLayout() {
-      var max = Math.max(0, qCards.length - qPerView());
-      if (max !== qMax) {
-        qMax = max;
-        qDots.innerHTML = '';
-        for (var i = 0; i <= max; i++) {
-          var b = document.createElement('button');
-          b.type = 'button';
-          b.setAttribute('aria-label', 'Go to review ' + (i + 1));
-          b.addEventListener('click', (function (n) { return function () { qGo(n); qStart(); }; })(i));
-          qDots.appendChild(b);
-        }
-        qIndex = Math.min(qIndex, max);
-      }
-      qCheckClamp();
-      qRender();
+    function qNormalize() {
+      var real = qN + ((qPos - qN) % qN + qN) % qN;
+      if (real !== qPos) { qPos = real; qRender(false); }
     }
-    function qGo(i) {
+    function qGo(pos) {
+      if (pos < 0 || pos > qCards.length - qPerView()) return;
       if (qHold) qCollapse();
-      qIndex = i > qMax ? 0 : i < 0 ? qMax : i;
-      qRender();
+      qPos = pos;
+      qRender(true);
+      if (reduceMotion) qNormalize();
     }
+    qTrack.addEventListener('transitionend', function (e) {
+      if (e.target === qTrack && e.propertyName === 'transform') qNormalize();
+    });
+
     function qStart() {
       clearInterval(qTimer);
-      if (!qPaused && !qHold && !document.hidden) qTimer = setInterval(function () { qGo(qIndex + 1); }, 3000);
+      if (!qPaused && !qHold && !document.hidden) qTimer = setInterval(function () { qGo(qPos + 1); }, 3000);
     }
     function qPause(p) { qPaused = p; qStart(); }
 
-    quotesEl.querySelector('.quotes__nav--prev').addEventListener('click', function () { qGo(qIndex - 1); qStart(); });
-    quotesEl.querySelector('.quotes__nav--next').addEventListener('click', function () { qGo(qIndex + 1); qStart(); });
+    quotesEl.querySelector('.quotes__nav--prev').addEventListener('click', function () { qGo(qPos - 1); qStart(); });
+    quotesEl.querySelector('.quotes__nav--next').addEventListener('click', function () { qGo(qPos + 1); qStart(); });
     quotesEl.addEventListener('mouseenter', function () { qPause(true); });
     quotesEl.addEventListener('mouseleave', function () { qPause(false); });
 
@@ -405,9 +420,10 @@
       if (qTouchX === null) return;
       var dx = e.changedTouches[0].clientX - qTouchX;
       qTouchX = null;
-      if (Math.abs(dx) > 40) { qGo(qIndex + (dx < 0 ? 1 : -1)); qStart(); }
+      if (Math.abs(dx) > 40) { qGo(qPos + (dx < 0 ? 1 : -1)); qStart(); }
     }, { passive: true });
 
+    function qLayout() { qCheckClamp(); qRender(false); }
     window.addEventListener('resize', qLayout);
     document.addEventListener('visibilitychange', qStart);
     qLayout();
