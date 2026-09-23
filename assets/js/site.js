@@ -289,8 +289,8 @@
   /* Set this once the WhatsApp Business profile exists — digits only,
      country code first, no "+", no spaces (e.g. "27821234567").
      The widget stays hidden until a number is set. */
-  var WHATSAPP_NUMBER = '27837890894';
-  var WHATSAPP_MESSAGE = "Hi! I'd like to book directly at RElaxed City Living — what's your best rate?";
+  var WHATSAPP_NUMBER = '27721750825';
+  var WHATSAPP_MESSAGE = "Hi! I'd like to book directly at RElaxed City Living.";
 
   if (WHATSAPP_NUMBER && !sessionStorage.getItem('waDismissed')) {
     var waLink = 'https://wa.me/' + WHATSAPP_NUMBER + '?text=' + encodeURIComponent(WHATSAPP_MESSAGE);
