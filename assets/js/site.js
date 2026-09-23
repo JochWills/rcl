@@ -311,6 +311,110 @@
     });
   }
 
+  /* ---------- review carousel ---------- */
+  var quotesEl = document.querySelector('[data-quotes]');
+  if (quotesEl) {
+    var qTrack = quotesEl.querySelector('.quotes__track');
+    var qCards = qTrack.children;
+    var qDots = quotesEl.querySelector('.quotes__dots');
+    var qIndex = 0, qTimer = null, qPaused = false, qHold = false, qMax = -1;
+
+    /* long reviews are clamped; "Read more" expands one in place and holds the autoplay */
+    var qMores = Array.prototype.map.call(qCards, function (card) {
+      var btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'quote__more';
+      btn.textContent = 'Read more';
+      btn.setAttribute('aria-expanded', 'false');
+      btn.hidden = true;
+      btn.addEventListener('click', function () {
+        var open = !card.classList.contains('is-open');
+        qCollapse();
+        if (open) {
+          card.classList.add('is-open');
+          btn.textContent = 'Show less';
+          btn.setAttribute('aria-expanded', 'true');
+          qHold = true;
+        }
+        qStart();
+      });
+      card.querySelector('blockquote').after(btn);
+      return btn;
+    });
+    function qCollapse() {
+      qHold = false;
+      Array.prototype.forEach.call(qCards, function (card, i) {
+        card.classList.remove('is-open');
+        qMores[i].textContent = 'Read more';
+        qMores[i].setAttribute('aria-expanded', 'false');
+      });
+    }
+    function qCheckClamp() {
+      Array.prototype.forEach.call(qCards, function (card, i) {
+        if (card.classList.contains('is-open')) return;
+        var bq = card.querySelector('blockquote');
+        qMores[i].hidden = bq.scrollHeight <= bq.clientHeight + 1;
+      });
+    }
+
+    function qPerView() { return parseInt(getComputedStyle(quotesEl).getPropertyValue('--per'), 10) || 1; }
+    function qRender() {
+      var step = qCards[0].offsetWidth + parseFloat(getComputedStyle(qTrack).columnGap || 0);
+      qTrack.style.transform = 'translateX(' + (-qIndex * step) + 'px)';
+      Array.prototype.forEach.call(qDots.children, function (d, i) {
+        if (i === qIndex) d.setAttribute('aria-current', 'true'); else d.removeAttribute('aria-current');
+      });
+    }
+    /* one dot per resting position, which depends on how many cards fit */
+    function qLayout() {
+      var max = Math.max(0, qCards.length - qPerView());
+      if (max !== qMax) {
+        qMax = max;
+        qDots.innerHTML = '';
+        for (var i = 0; i <= max; i++) {
+          var b = document.createElement('button');
+          b.type = 'button';
+          b.setAttribute('aria-label', 'Go to review ' + (i + 1));
+          b.addEventListener('click', (function (n) { return function () { qGo(n); qStart(); }; })(i));
+          qDots.appendChild(b);
+        }
+        qIndex = Math.min(qIndex, max);
+      }
+      qCheckClamp();
+      qRender();
+    }
+    function qGo(i) {
+      if (qHold) qCollapse();
+      qIndex = i > qMax ? 0 : i < 0 ? qMax : i;
+      qRender();
+    }
+    function qStart() {
+      clearInterval(qTimer);
+      if (!qPaused && !qHold && !document.hidden) qTimer = setInterval(function () { qGo(qIndex + 1); }, 3000);
+    }
+    function qPause(p) { qPaused = p; qStart(); }
+
+    quotesEl.querySelector('.quotes__nav--prev').addEventListener('click', function () { qGo(qIndex - 1); qStart(); });
+    quotesEl.querySelector('.quotes__nav--next').addEventListener('click', function () { qGo(qIndex + 1); qStart(); });
+    quotesEl.addEventListener('mouseenter', function () { qPause(true); });
+    quotesEl.addEventListener('mouseleave', function () { qPause(false); });
+
+    var qTouchX = null;
+    quotesEl.addEventListener('touchstart', function (e) { qTouchX = e.touches[0].clientX; }, { passive: true });
+    quotesEl.addEventListener('touchend', function (e) {
+      if (qTouchX === null) return;
+      var dx = e.changedTouches[0].clientX - qTouchX;
+      qTouchX = null;
+      if (Math.abs(dx) > 40) { qGo(qIndex + (dx < 0 ? 1 : -1)); qStart(); }
+    }, { passive: true });
+
+    window.addEventListener('resize', qLayout);
+    document.addEventListener('visibilitychange', qStart);
+    qLayout();
+    qStart();
+    if (document.fonts) document.fonts.ready.then(qLayout);
+  }
+
   /* ---------- current year ---------- */
   var yearEl = document.querySelectorAll('[data-year]');
   yearEl.forEach(function (el) { el.textContent = new Date().getFullYear(); });
